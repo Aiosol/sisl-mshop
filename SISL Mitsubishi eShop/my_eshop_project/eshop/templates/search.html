@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- Top White-Board Section (Heading) -->
+  <div class="white-board mb-4" style="border-radius:5px; padding:20px;">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="text-center">Search Results</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Form in White-Board Container -->
+  <div class="white-board mb-4" style="border-radius:5px; padding:20px;">
+    <div style="max-width: 60%; margin: 0 auto;">
+      <form method="get" action="{% url 'search' %}">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search by Model Name" value="{{ query }}">
+          <button class="btn" type="submit" style="background-color:#002b49; color:#fff;">
+            Search
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Results White-Board Container -->
+  <div class="white-board" style="border-radius:5px; padding:20px;">
+    {% if products %}
+      <div class="row">
+        {% for product in products %}
+          <div class="col-md-3 mb-4">
+            <div class="card h-100"
+                 style="border:none; box-shadow: 0 0 8px rgba(0,0,0,0.1); border-radius:5px;">
+              {% if product.image %}
+                <img src="{{ product.image.url }}"
+                     alt="{{ product.name }}"
+                     class="card-img-top"
+                     style="width:100%; max-height:220px; object-fit:contain; background-color:#f9f9f9; border-radius:5px; margin-top:15px;">
+              {% else %}
+                <img src="{% static 'images/default-placeholder.png' %}"
+                     alt="No Image"
+                     class="card-img-top"
+                     style="width:100%; max-height:220px; object-fit:contain; background-color:#f9f9f9; border-radius:5px; margin-top:15px;">
+              {% endif %}
+              <div class="card-body text-center">
+                <h5 class="card-title">{{ product.name }}</h5>
+                {% if product.original_price %}
+                  <p class="card-text" style="color:#ff0000; font-size:1.2rem; font-weight:bold;">
+                    ৳{{ product.original_price|indian_format }}
+                  </p>
+                {% else %}
+                  <p class="card-text" style="font-size:1rem; color:#666;">Price not available</p>
+                {% endif %}
+                <a href="{% url 'product_detail' product.sku %}"
+                   class="btn"
+                   style="background-color:#002b49; color:#fff;">
+                  View Details
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-center">No products found matching your query.</p>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

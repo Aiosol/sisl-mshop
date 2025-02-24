@@ -1,0 +1,58 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if change and original %}
+    <li>
+      <!-- Use the new function promptCloneNameAndSKU instead of the old single prompt -->
+      <a href="{% url 'admin:eshop_product_clone' original.pk %}"
+         onclick="return promptCloneNameAndSKU(this);">
+         Clone this Product
+      </a>
+    </li>
+  {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script type="text/javascript">
+  function promptCloneNameAndSKU(link) {
+    // Ask for new model name
+    var newModelName = prompt("Enter NEW Model Name for the cloned product:");
+    if (!newModelName || !newModelName.trim()) {
+      alert("Model Name is required.");
+      return false;
+    }
+
+    // Ask for new SKU
+    var newSku = prompt("Enter NEW SKU for the cloned product:");
+    if (!newSku || !newSku.trim()) {
+      alert("SKU is required.");
+      return false;
+    }
+
+    // Append them to the URL query string
+    var params = "?model_name=" + encodeURIComponent(newModelName.trim())
+               + "&sku=" + encodeURIComponent(newSku.trim());
+
+    link.href = link.href + params;
+    return true;
+  }
+
+  // If you still want to do category-based toggling of fields:
+  document.addEventListener('DOMContentLoaded', function() {
+    var catSelect = document.getElementById('id_category');
+    if (!catSelect) return;
+
+    function toggleFields() {
+      var catText = catSelect.options[catSelect.selectedIndex].textContent.toLowerCase();
+      // For example, hide or show .field-rated_output_power for VFD, etc.
+      // This is purely optional UI convenience, not required for uniqueness
+    }
+
+    catSelect.addEventListener('change', toggleFields);
+    toggleFields();
+  });
+  </script>
+{% endblock %}

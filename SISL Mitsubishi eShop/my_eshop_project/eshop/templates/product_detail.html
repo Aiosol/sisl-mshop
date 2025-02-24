@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row mb-4">
+    <!-- CARD #1: Main Image -->
+    <div class="col-md-6 mb-4">
+      <div class="white-board p-4 h-100"
+           style="background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.1); border-radius: 10px; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+        <div class="text-center">
+          <div style="padding: 15px; background-color: #fff; border-radius: 5px; display: inline-block;">
+            {% if product.image %}
+              <img id="mainProductImage"
+                   src="{{ product.image.url }}"
+                   alt="{{ product.name }}"
+                   style="max-width: 100%; max-height: 400px; object-fit: contain;">
+            {% else %}
+              <img id="mainProductImage"
+                   src="{% static 'images/default-placeholder.png' %}"
+                   alt="No image available"
+                   style="max-width: 100%; max-height: 400px; object-fit: contain;">
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD #2: Brand, SKU, Price, Description -->
+    <div class="col-md-6 mb-4">
+      <div class="white-board p-4 h-100"
+           style="background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.1); border-radius: 10px; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+        <h2>{{ product.name }}</h2>
+        <p><strong>Brand:</strong> {{ product.brand.name }}</p>
+        <p><strong>SKU:</strong> {{ product.sku }}</p>
+
+        <!-- Price in Indian format, left-aligned -->
+        {% if product.original_price %}
+          <p style="font-size: 1.5rem; font-weight: bold; color: #e60000;">
+            ৳{{ product.original_price|indian_format }}
+          </p>
+        {% else %}
+          <p style="font-size: 1.2rem; color: #333;">Price not available</p>
+        {% endif %}
+
+        {% if product.description %}
+          <h5>Description</h5>
+          <p style="white-space: pre-wrap;">{{ product.description|safe }}</p>
+        {% endif %}
+
+        <!-- Updated Ask for Discount button -->
+        <a href="{% url 'ask_for_discount' product.sku %}"
+           class="btn mt-3"
+           style="background-color:#002b49; color:#fff; border-radius:2rem; white-space:nowrap; padding:0.5rem 1.5rem;">
+          Ask for Discount
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD #3: Full Description & Specifications Tabs -->
+  <div class="white-board p-4 mb-4"
+       style="background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.1); border-radius: 10px; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+    <ul class="nav nav-tabs" id="productTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active"
+                id="main-description-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#main-description"
+                type="button"
+                role="tab"
+                aria-controls="main-description"
+                aria-selected="true">
+          Description
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link"
+                id="main-specs-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#main-specs"
+                type="button"
+                role="tab"
+                aria-controls="main-specs"
+                aria-selected="false">
+          Specifications
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content p-3 bg-white border border-top-0 shadow-sm"
+         style="border-radius: 10px;"
+         id="productTabContent">
+      <!-- Full Description Tab -->
+      <div class="tab-pane fade show active"
+           id="main-description"
+           role="tabpanel"
+           aria-labelledby="main-description-tab">
+        {% if product.description %}
+          <div style="white-space: pre-wrap;">{{ product.description|safe }}</div>
+        {% else %}
+          <p style="color: red;">No description available for this product.</p>
+        {% endif %}
+      </div>
+
+      <!-- Specifications Tab -->
+      <div class="tab-pane fade"
+           id="main-specs"
+           role="tabpanel"
+           aria-labelledby="main-specs-tab">
+        <ul class="list-unstyled" style="line-height: 1.7;">
+          {% if product.rated_output_power %}
+            <li><strong>Rated Output Power:</strong> {{ product.rated_output_power }}</li>
+          {% endif %}
+          {% if product.rated_output_current %}
+            <li><strong>Rated Output Current:</strong> {{ product.rated_output_current }}</li>
+          {% endif %}
+          {% if product.input_voltage %}
+            <li><strong>Input Voltage:</strong> {{ product.input_voltage }}</li>
+          {% endif %}
+          {% if product.input_frequency %}
+            <li><strong>Input Frequency:</strong> {{ product.input_frequency }}</li>
+          {% endif %}
+          {% if product.output_voltage %}
+            <li><strong>Output Voltage:</strong> {{ product.output_voltage }}</li>
+          {% endif %}
+          {% if product.output_frequency_range %}
+            <li><strong>Output Frequency Range:</strong> {{ product.output_frequency_range }}</li>
+          {% endif %}
+          {% if product.dimensions %}
+            <li><strong>Dimensions (W x H x D in mm):</strong> {{ product.dimensions }}</li>
+          {% endif %}
+          {% if product.country_of_origin %}
+            <li><strong>Country of Origin:</strong> {{ product.country_of_origin }}</li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD #4: Related Products (Optional) -->
+  {% if product.related_products.all %}
+    <div class="white-board p-4"
+         style="background: #fff; box-shadow: 0 0 8px rgba(0,0,0,0.1); border-radius: 10px; border-left: 1px solid #eee; border-right: 1px solid #eee;">
+      <h4 class="mb-4 text-center" style="font-weight:600;">Related Products</h4>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {% for related in product.related_products.all %}
+          <div class="col d-flex align-items-stretch">
+            <div class="card text-center border-0 shadow-sm w-100 h-100" style="border-radius:10px;">
+              <div style="padding: 15px; background-color: #fff; border-radius: 5px;">
+                {% if related.image %}
+                  <img src="{{ related.image.url }}"
+                       alt="{{ related.name }}"
+                       style="width:100%; height:200px; object-fit:contain;"
+                       class="card-img-top">
+                {% else %}
+                  <img src="{% static 'images/default-placeholder.png' %}"
+                       alt="No Image"
+                       style="width:100%; height:200px; object-fit:contain;"
+                       class="card-img-top">
+                {% endif %}
+              </div>
+              <div class="card-body d-flex flex-column justify-content-between">
+                <h6 class="fw-bold mb-2">
+                  <a href="{% url 'product_detail' related.sku %}"
+                     style="text-decoration:none; color:inherit;">
+                    {{ related.name }}
+                  </a>
+                </h6>
+                {% if related.original_price %}
+                  <p style="font-size:1.2rem; font-weight:bold; color:#e60000;">
+                    ৳{{ related.original_price|indian_format }}
+                  </p>
+                {% else %}
+                  <p style="font-size:1rem; color:#666;">Price not available</p>
+                {% endif %}
+                <div class="mt-3">
+                  <a href="{% url 'ask_for_discount' related.sku %}"
+                     class="btn rounded-pill px-4"
+                     style="background-color:#002b49; color:#fff; white-space: nowrap;">
+                    Ask for Discount
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

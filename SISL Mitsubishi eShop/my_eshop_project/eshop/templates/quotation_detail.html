@@ -1,0 +1,31 @@
+<!-- eshop/templates/quotation_detail.html -->
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>Quotation #{{ quotation.pk }}</h2>
+<p>Created: {{ quotation.created_at }}</p>
+<p>Notes: {{ quotation.notes }}</p>
+<p>Total: {{ quotation.total_amount }}</p>
+
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Description</th>
+    <th>Qty</th>
+    <th>Unit Price</th>
+    <th>Discount %</th>
+    <th>Line Total</th>
+  </tr>
+  {% for line in lines %}
+    <tr>
+      <td>{{ line.product.name }}</td>
+      <td>{{ line.description }}</td>
+      <td>{{ line.quantity }}</td>
+      <td>{{ line.unit_price }}</td>
+      <td>{{ line.discount_percent }}</td>
+      <td>{{ line.line_total }}</td>
+    </tr>
+  {% endfor %}
+</table>
+{% endblock %}
